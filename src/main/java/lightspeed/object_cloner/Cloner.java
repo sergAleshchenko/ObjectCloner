@@ -1,7 +1,7 @@
 package lightspeed.object_cloner;
 
 import lightspeed.object_cloner.deep_cloners.*;
-import lightspeed.object_cloner.shallow_cloners.*;
+import lightspeed.object_cloner.collection_cloners.*;
 import lightspeed.object_cloner.utils.Logger;
 
 import java.util.*;
@@ -14,12 +14,10 @@ public class Cloner {
 	private final Set<Class<?>> ignored = new HashSet<>();
 	private final Set<Class<?>> ignoredInstanceOf = new HashSet<>();
 	private final Map<Class<?>, ShallowCloner> fastCloners = new HashMap<>();
-	private Map<Object, Object> ignoredInstances;
 	private Logger logger = new Logger();
 	private boolean cloningEnabled = true;
 	private Map<Class, DeepCloner> cloners = new ConcurrentHashMap<>();
 	private static DeepCloner IGNORE_CLONER = new IgnoreClassCloner();
-	private static DeepCloner NULL_CLONER = new NullClassCloner();
 
 	public Cloner() {
 		init();
@@ -97,8 +95,6 @@ public class Cloner {
 		}
 		if (cloner == IGNORE_CLONER) {
 			return object;
-		} else if (cloner == NULL_CLONER) {
-			return null;
 		}
 		return cloner.deepClone(object, clones);
 	}
@@ -126,10 +122,6 @@ public class Cloner {
 	private class ClonesMap extends IdentityHashMap<Object, Object> {
 		@Override
 		public Object get(Object key) {
-			if (ignoredInstances != null) {
-				Object o = ignoredInstances.get(key);
-				if (o != null) return o;
-			}
 			return super.get(key);
 		}
 	}

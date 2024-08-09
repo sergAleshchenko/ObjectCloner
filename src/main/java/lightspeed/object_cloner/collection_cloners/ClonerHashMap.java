@@ -1,4 +1,4 @@
-package lightspeed.object_cloner.shallow_cloners;
+package lightspeed.object_cloner.collection_cloners;
 
 import lightspeed.object_cloner.DeepCloner;
 import lightspeed.object_cloner.ShallowCloner;

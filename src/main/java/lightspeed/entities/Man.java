@@ -12,6 +12,7 @@ import java.util.List;
 @Setter
 @ToString
 @EqualsAndHashCode
+@NoArgsConstructor
 public class Man {
     private String name;
     private int age;

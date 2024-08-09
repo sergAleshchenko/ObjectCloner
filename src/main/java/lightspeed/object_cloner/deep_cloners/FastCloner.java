@@ -17,7 +17,6 @@ public class FastCloner implements DeepCloner {
     private DeepCloner deepCloner = this::cloneInternal;
     private Map<Class, DeepCloner> cloners = new ConcurrentHashMap<>();
     private static DeepCloner IGNORE_CLONER = new IgnoreClassCloner();
-    private static DeepCloner NULL_CLONER = new NullClassCloner();
 
     public FastCloner(ShallowCloner shallowCloner) {
         this.shallowCloner = shallowCloner;
@@ -49,8 +48,6 @@ public class FastCloner implements DeepCloner {
         }
         if (cloner == IGNORE_CLONER) {
             return object;
-        } else if (cloner == NULL_CLONER) {
-            return null;
         }
         return cloner.deepClone(object, clones);
     }

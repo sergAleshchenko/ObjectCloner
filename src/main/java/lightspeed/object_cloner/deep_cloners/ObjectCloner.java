@@ -1,8 +1,9 @@
 package lightspeed.object_cloner.deep_cloners;
 
 import lightspeed.object_cloner.*;
-import lightspeed.object_cloner.utils.InstantiationUtils;
 import lightspeed.object_cloner.utils.Logger;
+import org.objenesis.Objenesis;
+import org.objenesis.ObjenesisStd;
 import org.objenesis.instantiator.ObjectInstantiator;
 
 import java.lang.annotation.Annotation;
@@ -23,31 +24,31 @@ public class ObjectCloner implements DeepCloner {
     private boolean nullTransient = false;
     private boolean cloneSynthetics = true;
     private static final Field[] EMPTY_FIELD_ARRAY = new Field[0];
-
-    private InstantiationStrategy instantiationStrategy;
     private boolean cloneAnonymousParent = true;
-
     private final Set<Class<? extends Annotation>> nullInsteadFieldAnnotations = new HashSet<>();
-
     private Cloner cloner = new Cloner();
+    private final Objenesis objenesis = new ObjenesisStd();
+
 
     public ObjectCloner(Class<?> aClass) {
-        this.instantiationStrategy = InstantiationUtils.getInstance();
         List<Field> l = new ArrayList<>();
         List<Boolean> shouldCloneList = new ArrayList<>();
         Class<?> aClass1 = aClass;
+
         do {
             Field[] declaredFields = aClass1.getDeclaredFields();
-            for (final Field f : declaredFields) {
-                int modifiers = f.getModifiers();
+
+            for (final Field field : declaredFields) {
+                int modifiers = field.getModifiers();
                 boolean isStatic = Modifier.isStatic(modifiers);
+
                 if (!isStatic) {
-                    if (!f.isAccessible()) {
-                        f.setAccessible(true);
+                    if (!field.isAccessible()) {
+                        field.setAccessible(true);
                     }
-                    if (!(nullTransient && Modifier.isTransient(modifiers)) && !isFieldNullInsteadBecauseOfAnnotation(f)) {
-                        l.add(f);
-                        boolean shouldClone = (cloneSynthetics || !f.isSynthetic()) && (cloneAnonymousParent || !isAnonymousParent(f));
+                    if (!(nullTransient && Modifier.isTransient(modifiers)) && !isFieldNullInsteadBecauseOfAnnotation(field)) {
+                        l.add(field);
+                        boolean shouldClone = (cloneSynthetics || !field.isSynthetic()) && (cloneAnonymousParent || !isAnonymousParent(field));
                         shouldCloneList.add(shouldClone);
                     }
                 }
@@ -56,10 +57,12 @@ public class ObjectCloner implements DeepCloner {
         fields = l.toArray(EMPTY_FIELD_ARRAY);
         numFields = fields.length;
         shouldClone = new boolean[numFields];
+
         for (int i = 0; i < shouldCloneList.size(); i++) {
             shouldClone[i] = shouldCloneList.get(i);
         }
-        instantiator = instantiationStrategy.getInstance(aClass);
+
+        instantiator = objenesis.getInstantiatorOf(aClass);
     }
 
     private boolean isFieldNullInsteadBecauseOfAnnotation(Field field) {
