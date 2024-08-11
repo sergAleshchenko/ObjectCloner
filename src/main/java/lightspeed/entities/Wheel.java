@@ -1,7 +1,6 @@
 package lightspeed.entities;
 
 import lombok.*;
-import java.util.List;
 
 /**
  * @author Sergei Aleshchenko
@@ -10,10 +9,9 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
+@EqualsAndHashCode
 @NoArgsConstructor
-public class Car {
-    private String model;
-    private int year;
-    private CarEngine engine;
-    private List<Wheel> wheels;
+public class Wheel {
+    private int radius;
+    private int width;
 }
